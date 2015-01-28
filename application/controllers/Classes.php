@@ -17,6 +17,7 @@ class Classes extends Controller
 
         $this->render('classes/index', array(
             'message' => 'List of all accessable classes.',
+            'count' => $model->rowsCount('classes'),
             'result' => $result
         ));
     }
@@ -30,8 +31,13 @@ class Classes extends Controller
         $model = $this->loadModel('Class');
         $result = $model->listItems($name);
 
+        if(!$result) {
+            $this->app->notFound();
+        }
+
         $this->render('classes/index', array(
             'message' => "List of objects of class \"{$name}\".",
+            'count' => $model->rowsCount($name),
             'result' => $result
         ));
         //$error = 'Always throw this error';
@@ -46,6 +52,10 @@ class Classes extends Controller
     {
         $model = $this->loadModel('Class');
         $result = $model->showItem($name, $id);
+
+        if(!$result) {
+            $this->app->notFound();
+        }
 
         $this->render('classes/view', array(
             'message' => "Single object of class \"{$name}\" with ObjectId = {$id}.",
