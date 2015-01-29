@@ -15,7 +15,8 @@ class PostJSON extends \Slim\Middleware
         $app = $this->app;
         $req = $app->request();
 
-        if($req->isPost()) {
+        // if http method is POST and content type is json
+        if($req->isPost() && $app->request()->getMediaType() == 'application/json') {
             $body = json_decode($req->getBody());
 
             // checks if valid json format

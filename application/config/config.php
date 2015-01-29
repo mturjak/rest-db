@@ -65,6 +65,9 @@ define('VIEWS_PATH', 'application/views/');
 // the slash at the end is VERY important!
 define('AVATAR_PATH', 'public/avatars/');
 
+// two levels up to get to the root of the app
+define('UPLOADS_PATH', dirname(dirname(dirname(__FILE__))) . '/uploads/');
+
 /**
  * Configuration for: Additional login providers: Facebook
  * Self-explaining. The FACEBOOK_LOGIN_PATH is the controller-action where the user is redirected to after getting

@@ -31,7 +31,7 @@ class Classes extends Controller
         $model = $this->loadModel('Class');
         $result = $model->listItems($name);
 
-        if(!$result) {
+        if($result === false) {
             $this->app->notFound();
         }
 

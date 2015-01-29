@@ -83,6 +83,61 @@ $app->group('/classes', function() use($app) {
 }); /*** classes group END ***/
 
 
+/************* file routes **************/ // TODO: combine with classes by adding conditions
+$app->group('/files', function() use($app) {
+
+  /**
+   * List files
+   */
+  $app->get('(/$|/index$|$)', 'Middleware\Auth::authBase', function () {
+    $this->loadController('files', 'listFiles');
+  });
+
+  /**
+   * Show record
+   */
+  $app->get('/:id(/$|/index(/|$)|$)', 'Middleware\Auth::authBase', function ($id) use($app) {
+    if($id === 'index') {
+      $app->redirect(URL . 'files/');
+    }
+    $this->loadController('files', 'getFile', $id);
+  });
+
+
+  /**************  POST  ***************/
+
+  /**
+   * Create object / create class if not exists
+   */
+  $app->post('(/$|/index$|$)', 'Middleware\Auth::authSession', function () {
+      $this->loadController('files', 'addFile');
+  });
+
+  /**************  PUT  ***************/
+
+  /**
+   * Update record
+   */
+  $app->put('/:id(/$|/index(/|$)|$)', 'Middleware\Auth::authSession', function ($id) use($app) {
+    if($id === 'index') {
+      $app->redirect(URL . 'files' . '/');
+    }
+    $this->loadController('files', 'edit', $name, $id);
+  });
+
+  /**************  DELETE  ***************/
+
+  /**
+   * Delete record
+   */
+  $app->delete('/:id(/$|/index(/|$)|$)', 'Middleware\Auth::authSession', function ($id) use($app) {
+    if($id === 'index') {
+      $app->halt(105, 'Problem deleting!');
+    }
+    $this->loadController('files', 'delete', $id);
+  });
+});
+
 /************* users group **************/
 $app->group('/users', function() use($app) {
 
