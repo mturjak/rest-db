@@ -4,7 +4,7 @@
  */
 class Upload
 {
-    public static function upload($folder = null)
+    public static function doUpload($folder = null)
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST' && !empty($_FILES['file'])) {
 		    
@@ -30,9 +30,9 @@ class Upload
 		            throw new RuntimeException('Unknown errors.');
 		    }
 
-            $allowed = $this->allowed_file($_FILES['file']);
+            $allowed = self::allowed_file($_FILES['file']);
 
-	        if($alloweed === true){
+	        if($allowed === true){
 
 	            $target_path = UPLOADS_PATH;
 
@@ -49,7 +49,7 @@ class Upload
 
 	            if(!file_exists($target_path) && move_uploaded_file($_FILES['file']['tmp_name'], $target_path)) {
 
-	                self::$resImg(basename($_FILES['file']['name']),120,$target_folder);
+	                self::resImg(basename($_FILES['file']['name']),120,$target_folder);
 
 	                    /// TODO: move this to file model after successful file upload
 	                    /* 

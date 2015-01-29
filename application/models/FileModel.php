@@ -51,6 +51,8 @@ class FileModel extends ClassModel {
         $db = Database::getInstance();
         $app = \Slim\Slim::getInstance();
 
+        $upload = Upload::doUpload();
+
         $keys = '';
         $values = '';
         foreach($app->request()->post() as $key => $value) {
