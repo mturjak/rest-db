@@ -47,6 +47,8 @@ class Upload
 
                 $target_path = $target_folder . basename( $_FILES['file']['name']);
 
+                // TODO: make private method that alows you to choose to move file to upload folder or remote server with ssh
+
 	            if(!file_exists($target_path) && move_uploaded_file($_FILES['file']['tmp_name'], $target_path)) {
 
 	                self::resImg(basename($_FILES['file']['name']),120,$target_folder);

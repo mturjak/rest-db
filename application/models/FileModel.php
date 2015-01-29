@@ -55,17 +55,20 @@ class FileModel extends ClassModel {
 
         $keys = '';
         $values = '';
+        $file_keys = array('parent','server', 'path', 'title');
+
         foreach($app->request()->post() as $key => $value) {
-            if($key !== 'created' || $key !== 'created_by') {
+            if(in_array($key , $file_keys)) {
                 $keys .= ', `' . $key . '`';
                 $values .= ', :' . $key;
             }
         }
+
         $values = trim($values, ', ');
         $keys = trim($keys, ', ');
         $sql = "INSERT INTO files($keys, `created`, `created_by`) VALUES($values, :created, :created_by)";
         $query = $db->prepare($sql);
-        $query->execute(array_merge($app->request()->post(), array('created' => time(), 'created_by' => 1)));
+        $query->execute(array_merge($app->request()->post(), array('created' => time(), 'created_by' => $app->currentUser)));
 
         if($query->rowCount() > 0) {
 

@@ -20,7 +20,7 @@ class Users extends Controller
         if(!empty($username = $post->username) && !empty($password = $post->password)) {
             // call to model verify user & password
             // if user credentials ok
-            $x = false;
+
             if($password == "test" && $username == "martin") {
 
             } else {

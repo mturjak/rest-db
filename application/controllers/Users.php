@@ -23,6 +23,7 @@ class Users extends Controller
         if(!empty($username = $post->username) && !empty($password = $post->password)) {
             // call to model verify user & password
             // if user credentials ok
+            // TODO: check if token already set and if it matches ... if not log out first
             $login = $login_model->login();
             if($login !== false) {
                 if($login !== true) {

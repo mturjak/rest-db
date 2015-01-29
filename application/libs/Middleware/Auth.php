@@ -66,7 +66,7 @@ class Auth extends \Slim\Middleware
         $resp = $app->response();
 
         if(!empty($token = $req->headers('X-Session-Token'))) {
-            $model = new \UserModel(\Database::getInstance());
+            $model = new \UserModel();
             $checkToken = $model->checkToken($token);
             if($checkToken !== false) {
                 if($checkToken !== true) {
