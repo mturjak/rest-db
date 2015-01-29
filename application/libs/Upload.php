@@ -40,8 +40,12 @@ class Upload
 	            if(!empty($folder)) {
                     $upload_name .= 'album' . $folder;
 	            }
-	                
-	            mkdir($target_path . $upload_name);
+	            
+	            if(!file_exists($target_path . $upload_name)) {
+	            	if(!mkdir($target_path . $upload_name)) {
+	            		throw new RuntimeException('Could not make directory.');
+	            	}
+	            }
 
 	            $target_folder = $target_path . $upload_name . '/';
 
@@ -73,7 +77,7 @@ class Upload
 	            } else {
 	                    // $_SESSION["feedback_negative"][] = "There was an error uploading the file, please try again!";
 	                    //return false;
-	                throw new RuntimeException('Failed to move uploaded file.');
+	                throw new RuntimeException('Upload failed. File might already exist.');
 	            }
 	            
 	        } else {
@@ -111,12 +115,12 @@ class Upload
      * Image resizing
      */
     private static function resImg($filename, $long_side, $target) {
-         
-        if(preg_match('/[.](jpg)$/', $filename)) {
+
+        if(preg_match('/[.](jpg)$/', strtolower($filename))) {
             $im = imagecreatefromjpeg($target . $filename);
-        } else if (preg_match('/[.](gif)$/', $filename)) {
+        } else if (preg_match('/[.](gif)$/', strtolower($filename))) {
             $im = imagecreatefromgif($target . $filename);
-        } else if (preg_match('/[.](png)$/', $filename)) {
+        } else if (preg_match('/[.](png)$/', strtolower($filename))) {
             $im = imagecreatefrompng($target . $filename);
         }
          

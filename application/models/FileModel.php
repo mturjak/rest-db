@@ -55,12 +55,18 @@ class FileModel extends ClassModel {
 
         $keys = '';
         $values = '';
+        $meta = null;
         $file_keys = array('parent','server', 'path', 'title');
+        $file_fields = array();
 
         foreach($app->request()->post() as $key => $value) {
-            if(in_array($key , $file_keys)) {
+            if(in_array($key, $file_keys)) {
                 $keys .= ', `' . $key . '`';
                 $values .= ', :' . $key;
+                $file_fields[$key] = $value;
+            }
+            elseif($key === 'meta') {
+                $meta = json_decode($value);
             }
         }
 
@@ -68,13 +74,30 @@ class FileModel extends ClassModel {
         $keys = trim($keys, ', ');
         $sql = "INSERT INTO files($keys, `created`, `created_by`) VALUES($values, :created, :created_by)";
         $query = $db->prepare($sql);
-        $query->execute(array_merge($app->request()->post(), array('created' => time(), 'created_by' => $app->currentUser)));
+        $query->execute(array_merge($file_fields, array('created' => time(), 'created_by' => UserModel::getUserId())));
 
         if($query->rowCount() > 0) {
+            $file_id = $db->lastInsertId();
 
-                // TODO: add file metadata records !!!!
-
-            return true;
+            if(!empty($meta)) {
+                $all_fine = true;
+                foreach($meta as $key => $value) {
+                    $query = $db->prepare('INSERT INTO files_metadata(tag, value) VALUES(:tag, :value)');
+                    if($query->execute(array(':tag' => $key, ':value' => $value))) {
+                        $meta_id = $db->lastInsertId();
+                        
+                        $query = $db->prepare('INSERT INTO bind_files_meta(file_id, meta_id) VALUES (:file_id, :meta_id)');
+                        if(!$query->execute(array(':file_id' => $file_id,':meta_id' => $meta_id))) {
+                            $all_fine = false;
+                        }
+                    } else {
+                        $all_fine = false;
+                    }
+                }
+                return $all_fine;
+            } else {
+                return true;
+            }
         }
         return false;
     }
