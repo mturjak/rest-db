@@ -215,6 +215,15 @@ $app->get('/verify/:name/:uid/:code(/$|/index$|$)', function ($name, $uid, $code
   $this->loadController('users', 'verify_' . $name, $uid, $code);
 });
 
+/****************  runner  *****************/
+$app->get('/run(/$|/index$|$)', function () {
+  $this->loadController('runner', 'index');
+});
+
+$app->post('/run(/$|/index$|$)', function () {
+  $this->loadController('runner', 'run');
+});
+
 /****************  errors  *****************/
 
 /**
