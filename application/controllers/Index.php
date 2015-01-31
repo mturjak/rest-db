@@ -18,6 +18,17 @@ class Index extends Controller
      */
     public function index()
     {
-        $this->render('index/index');
+        $app = $this->app;
+
+        // some generic server response maybe indicating api status - TODO: load from config
+        $genericApiResponse = array(
+            'app' => APP_NAME,
+            'url' => URL,
+            'type' => 'API',
+            'version' => 'v1',
+            'status' => 'running'
+        );
+
+        $this->render('index/index', $genericApiResponse);
     }
 }

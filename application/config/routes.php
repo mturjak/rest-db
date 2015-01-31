@@ -9,6 +9,14 @@
 
 /* API rautes */
 
+
+/**
+ * Basic API response
+ */
+$app->get('(/$|/index$|$)', 'Middleware\Auth::authBase', function () {
+  $this->loadController('index', 'index');
+});
+
 /************* classes group **************/
 
 $app->group('/classes', function() use($app) {
