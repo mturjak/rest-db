@@ -67,6 +67,7 @@ define('AVATAR_PATH', 'public/avatars/');
 
 // two levels up to get to the root of the app
 define('UPLOADS_PATH', dirname(dirname(dirname(__FILE__))) . '/uploads/');
+define('RUNNER_OUTPUT_PATH', dirname(dirname(dirname(__FILE__))) . '/runners/');
 
 /**
  * Configuration for: Additional login providers: Facebook

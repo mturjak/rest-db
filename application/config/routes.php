@@ -224,13 +224,19 @@ $app->get('/verify/:name/:uid/:code(/$|/index$|$)', function ($name, $uid, $code
 });
 
 /****************  runner  *****************/
-$app->get('/run(/$|/index$|$)', function () {
-  $this->loadController('runner', 'index');
-});
+$app->group('/run', function() use($app) {
+  $app->get('(/$|/index$|$)', function () {
+    $this->loadController('runner', 'index');
+  });
 
-$app->post('/run(/$|/index$|$)', function () {
-  $this->loadController('runner', 'run');
-});
+  $app->post('(/$|/index$|$)', function () {
+    $this->loadController('runner', 'run');
+  });
+
+  $app->put('/:id(/$|/index$|$)', function ($id) {
+    $this->loadController('runner', 'rerun', $id);
+  });
+}); /*** runner group END ***/
 
 /****************  errors  *****************/
 
