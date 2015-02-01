@@ -22,27 +22,13 @@ class Runner extends Controller
      */
     public function run()
     {
-        if(!empty($this->app->request()->post('scripts'))) {
+        $model = $this->loadModel('Runner');
+        $runner = $model->run();
 
-            $run = array(
-                'input' => $this->app->request()->post('input'),
-                'scripts' => $this->app->request()->post('scripts')
-            );
-
-            $runner_id = sha1(serialize($run));
-
-            if(file_exists(RUNNER_OUTPUT_PATH . $runner_id)) {
-                $this->halt(400, 'Runner already exists.');
-            }
-
-            $run_add = array(
-                'runner_id' => $runner_id,
-                'timestamp' => time()
-            );
-
+        if($runner !== false) {
             $this->render('classes/index', array(
                 'message' => "Running...",
-                'result' => array_merge($run, $run_add)
+                'result' => $runner
             ), 202);
         } else {
             $this->index();

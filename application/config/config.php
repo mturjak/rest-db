@@ -69,6 +69,9 @@ define('AVATAR_PATH', 'public/avatars/');
 define('UPLOADS_PATH', dirname(dirname(dirname(__FILE__))) . '/uploads/');
 define('RUNNER_OUTPUT_PATH', dirname(dirname(dirname(__FILE__))) . '/runners/');
 
+//definig R as default runner service
+define('RUNNER_SERVICE', 'R');
+
 /**
  * Configuration for: Additional login providers: Facebook
  * Self-explaining. The FACEBOOK_LOGIN_PATH is the controller-action where the user is redirected to after getting
