@@ -59,7 +59,7 @@ class Files extends Classes
         if($upload !== false) {
             $return = array(
                 'message' => 'New file added successfully.',
-                'file' = $upload
+                'file' => $upload
             );
             $code = 201;
         } else {
