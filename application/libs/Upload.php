@@ -49,7 +49,10 @@ class Upload
 
 	            $target_folder = $target_path . $upload_name . '/';
 
-                $target_path = $target_folder . basename( $_FILES['file']['name']);
+	            // generate +-unique file hash
+	            $filehash = hash('sha256', time() . bin2hex(openssl_random_pseudo_bytes(64)));
+
+                $target_path = $target_folder . $filehash; // because using basename( $_FILES['file']['name']) is not kosher
 
                 // TODO: make private method that alows you to choose to move file to upload folder or remote server with ssh
 
@@ -73,7 +76,7 @@ class Upload
 	                            'folder' => $upload_name
 	                        )),
 	                    ));*/
-	                return true;
+	                return $upload_name . '/' . $filehash;
 	            } else {
 	                    // $_SESSION["feedback_negative"][] = "There was an error uploading the file, please try again!";
 	                    //return false;

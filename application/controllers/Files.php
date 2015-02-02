@@ -54,17 +54,20 @@ class Files extends Classes
     public function addFile()
     {
         $model = $this->loadModel('File');
-        if($model->addFile()) {
-            $message = "New file added successfully.";
+        $upload = $model->addFile();
+
+        if($upload !== false) {
+            $return = array(
+                'message' => 'New file added successfully.',
+                'file' = $upload
+            );
             $code = 201;
         } else {
-            $message = "Error adding file.";
+            $return = array("Error adding file.");
             $code = 500;
         }
 
 
-        $this->render('classes/view', array(
-            'message' => $message
-        ), $code);
+        $this->render('classes/view', $return, $code);
     }
 }
