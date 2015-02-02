@@ -32,13 +32,13 @@ class Upload
 
             $allowed = self::allowed_file($_FILES['file']);
 
-	        if($allowed === true){
+	        if($allowed !== false){
 
 	            $target_path = UPLOADS_PATH;
 
 	            $upload_name = '';
 	            if(!empty($folder)) {
-                    $upload_name .= 'album' . $folder;
+                    $upload_name .= 'album' . $folder . '/';
 	            }
 	            
 	            if(!file_exists($target_path . $upload_name)) {
@@ -58,7 +58,7 @@ class Upload
 
 	            if(!file_exists($target_path) && move_uploaded_file($_FILES['file']['tmp_name'], $target_path)) {
 
-	                self::resImg(basename($_FILES['file']['name']),120,$target_folder);
+	                self::resImg($filehash,$allowed,120,$target_folder);
 
 	                    /// TODO: move this to file model after successful file upload
 	                    /* 
@@ -76,7 +76,7 @@ class Upload
 	                            'folder' => $upload_name
 	                        )),
 	                    ));*/
-	                return $upload_name . '/' . $filehash;
+	                return $upload_name . $filehash;
 	            } else {
 	                    // $_SESSION["feedback_negative"][] = "There was an error uploading the file, please try again!";
 	                    //return false;
@@ -101,8 +101,8 @@ class Upload
                 $finfo = new finfo(FILEINFO_MIME_TYPE);
                 $mime = $finfo->file($filename);
 
-                if(in_array($mime, $allowed)) {
-                    return true;
+                if($i = array_search($mime, $allowed)) {
+                    return $allowed[$i];
                 } else {
                     throw new RuntimeException('Invalid file format.');
                 }
@@ -117,19 +117,19 @@ class Upload
     /**
      * Image resizing
      */
-    private static function resImg($filename, $long_side, $target) {
+    private static function resImg($filename, $type, $long_side, $target) {
 
-        if(preg_match('/[.](jpg)$/', strtolower($filename))) {
+        if($type === 'image/jpeg') {
             $im = imagecreatefromjpeg($target . $filename);
-        } else if (preg_match('/[.](gif)$/', strtolower($filename))) {
+        } else if ($type === 'image/gif') {
             $im = imagecreatefromgif($target . $filename);
-        } else if (preg_match('/[.](png)$/', strtolower($filename))) {
+        } else if ($type === 'image/png') {
             $im = imagecreatefrompng($target . $filename);
         }
          
         $ox = imagesx($im);
         $oy = imagesy($im);
-         
+        
         if($ox > $oy) {
             $nx = $long_side;
             $ny = floor($oy * ($long_side / $ox));
@@ -154,12 +154,15 @@ class Upload
         // TODO: make this its own function and then combine both in one wrapper
         $long_side = 520;
 
-        if($ox > $oy) {
+        if($ox > $oy && $ox > $long_side) {
             $nx = $long_side;
             $ny = floor($oy * ($long_side / $ox));
-        } else {
+        } elseif($oy > $long_side) {
             $ny = $long_side;
             $nx = floor($ox * ($long_side / $oy));
+        } else {
+        	$nx = $ox;
+        	$ny = $oy;
         }
          
         $nm = imagecreatetruecolor($nx, $ny);

@@ -63,7 +63,7 @@ class Files extends Classes
             );
             $code = 201;
         } else {
-            $return = array("Error adding file.");
+            $return = array('message' => 'Error adding file.');
             $code = 500;
         }
 
