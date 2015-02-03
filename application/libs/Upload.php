@@ -30,9 +30,9 @@ class Upload
 		            throw new RuntimeException('Unknown errors.');
 		    }
 
-            $allowed = self::allowed_file($_FILES['file']);
+            $ext = self::allowed_file($_FILES['file']);
 
-	        if($allowed !== false){
+	        if($ext !== false){
 
 	            $target_path = UPLOADS_PATH;
 
@@ -50,7 +50,7 @@ class Upload
 	            $target_folder = $target_path . $upload_name . '/';
 
 	            // generate +-unique file hash
-	            $filehash = hash('sha256', time() . bin2hex(openssl_random_pseudo_bytes(64)));
+	            $filehash = hash('sha256', time() . bin2hex(openssl_random_pseudo_bytes(64))) . '.' . $ext;
 
                 $target_path = $target_folder . $filehash; // because using basename( $_FILES['file']['name']) is not kosher
 
@@ -58,7 +58,7 @@ class Upload
 
 	            if(!file_exists($target_path) && move_uploaded_file($_FILES['file']['tmp_name'], $target_path)) {
 
-	                self::resImg($filehash,$allowed,120,$target_folder);
+	                self::resImg($filehash,$ext,120,$target_folder);
 
 	                    /// TODO: move this to file model after successful file upload
 	                    /* 
@@ -93,16 +93,24 @@ class Upload
     }
     private static function allowed_file($file)
     {
-        $allowed = array('image/gif', 'image/jpeg', 'image/png'); // TODO: load these from the config file
+        $allowed = array(
+        	'gif' => 'image/gif',
+        	'jpg' => 'image/jpeg',
+        	'png' => 'image/png',
+        	'mp4' => 'video/mp4',
+        	'webm' => 'video/webm',
+        	'avi' => 'video/x-msvideo',
+        	'mov' => 'video/quicktime'
+        ); // TODO: load these from the config file
 
         if($file['size'] > 0) { 
-            if($file['size'] <= 5000000) { // TODO: load this from the config file
+            if($file['size'] <= 10000000) { // TODO: load this from the config file
                 $filename = $file['tmp_name'];
                 $finfo = new finfo(FILEINFO_MIME_TYPE);
                 $mime = $finfo->file($filename);
 
                 if($i = array_search($mime, $allowed)) {
-                    return $allowed[$i];
+                    return $i;
                 } else {
                     throw new RuntimeException('Invalid file format.');
                 }
@@ -117,66 +125,73 @@ class Upload
     /**
      * Image resizing
      */
-    private static function resImg($filename, $type, $long_side, $target) {
+    private static function resImg($filename, $ext, $long_side, $target) {
+    	$resize = true;
 
-        if($type === 'image/jpeg') {
+        if($ext === 'jpg') {
             $im = imagecreatefromjpeg($target . $filename);
-        } else if ($type === 'image/gif') {
+        } else if ($ext === 'gif') {
             $im = imagecreatefromgif($target . $filename);
-        } else if ($type === 'image/png') {
+        } else if ($ext === 'png') {
             $im = imagecreatefrompng($target . $filename);
-        }
-         
-        $ox = imagesx($im);
-        $oy = imagesy($im);
-        
-        if($ox > $oy) {
-            $nx = $long_side;
-            $ny = floor($oy * ($long_side / $ox));
         } else {
-            $ny = $long_side;
-            $nx = floor($ox * ($long_side / $oy));
+        	$resize = false;
         }
-         
-        $nm = imagecreatetruecolor($nx, $ny);
-         
-        imagecopyresized($nm, $im, 0,0,0,0,$nx,$ny,$ox,$oy);
 
-        $path_to_thumbs_directory = $target . 'thumb/';
+        if($resize) {
          
-        if(!file_exists($path_to_thumbs_directory)) {
-          if(!mkdir($path_to_thumbs_directory)) {
-               die("There was a problem. Please try again!");
-          } 
-        }
-        imagejpeg($nm, $path_to_thumbs_directory . $filename);
+	        $ox = imagesx($im);
+	        $oy = imagesy($im);
+	        
+	        if($ox > $oy) {
+	            $nx = $long_side;
+	            $ny = floor($oy * ($long_side / $ox));
+	        } else {
+	            $ny = $long_side;
+	            $nx = floor($ox * ($long_side / $oy));
+	        }
+	         
+	        $nm = imagecreatetruecolor($nx, $ny);
+	         
+	        imagecopyresized($nm, $im, 0,0,0,0,$nx,$ny,$ox,$oy);
 
-        // TODO: make this its own function and then combine both in one wrapper
-        $long_side = 520;
+	        $path_to_thumbs_directory = $target . 'thumb/';
+	         
+	        if(!file_exists($path_to_thumbs_directory)) {
+	          if(!mkdir($path_to_thumbs_directory)) {
+	               die("There was a problem. Please try again!");
+	          } 
+	        }
+	        imagejpeg($nm, $path_to_thumbs_directory . $filename);
 
-        if($ox > $oy && $ox > $long_side) {
-            $nx = $long_side;
-            $ny = floor($oy * ($long_side / $ox));
-        } elseif($oy > $long_side) {
-            $ny = $long_side;
-            $nx = floor($ox * ($long_side / $oy));
-        } else {
-        	$nx = $ox;
-        	$ny = $oy;
-        }
-         
-        $nm = imagecreatetruecolor($nx, $ny);
-         
-        imagecopyresized($nm, $im, 0,0,0,0,$nx,$ny,$ox,$oy);
+	        // TODO: make this its own function and then combine both in one wrapper
+	        $long_side = 520;
 
-        $path_to_thumbs_directory = $target . 'small/';
-         
-        if(!file_exists($path_to_thumbs_directory)) {
-          if(!mkdir($path_to_thumbs_directory)) {
-               die("There was a problem. Please try again!");
-          } 
-        }
-        imagejpeg($nm, $path_to_thumbs_directory . $filename);
+	        if($ox > $oy && $ox > $long_side) {
+	            $nx = $long_side;
+	            $ny = floor($oy * ($long_side / $ox));
+	        } elseif($oy > $long_side) {
+	            $ny = $long_side;
+	            $nx = floor($ox * ($long_side / $oy));
+	        } else {
+	        	$nx = $ox;
+	        	$ny = $oy;
+	        }
+	         
+	        $nm = imagecreatetruecolor($nx, $ny);
+	         
+	        imagecopyresized($nm, $im, 0,0,0,0,$nx,$ny,$ox,$oy);
+
+	        $path_to_thumbs_directory = $target . 'small/';
+	         
+	        if(!file_exists($path_to_thumbs_directory)) {
+	          if(!mkdir($path_to_thumbs_directory)) {
+	               die("There was a problem. Please try again!");
+	          } 
+	        }
+	        imagejpeg($nm, $path_to_thumbs_directory . $filename);
+
+    	}
         return true;
     }
 
